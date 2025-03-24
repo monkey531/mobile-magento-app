@@ -30,8 +30,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "origin": "https://192.168.135.25:5000/"
+          "backgroundColor": "#ffffff"
         }
       ]
     ],

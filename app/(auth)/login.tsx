@@ -1,22 +1,29 @@
-import { useState, useContext, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Stack, router } from 'expo-router';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { AuthContext } from '@/providers/AuthProvider';
+import { useSession } from '@/providers/AuthProvider';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { signIn, session } = useContext(AuthContext);
+  const { signIn, session, isLoading } = useSession();
+
+  const login = () => {
+    if(email && password) {
+      const res = signIn(email, password);
+    } else {
+      setError('Please enter email and password');
+    }
+  }
 
   useEffect(() => {
-    if(!session.isLoading && session.auth) {
-      console.log("login-16:   ", session.auth);
-      router.replace('/(auth)/register');
+    if(session) {
+      return router.navigate("/(admin)");
     }
-  }, [session.auth]);
+  }, [session]);
 
   return (
     <View style={styles.container}>
@@ -86,13 +93,13 @@ export default function LoginScreen() {
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       {/* Login Button */}
-      <TouchableOpacity 
-        style={[styles.loginButton, session.isLoading && styles.disabledButton]} 
-        onPress={() => signIn(email, password)}
-        disabled={session.isLoading}
+      <TouchableOpacity
+        style={[styles.loginButton, isLoading && styles.disabledButton]}
+        onPress={() => login()}
+        disabled={isLoading}
       >
         <Text style={styles.loginButtonText}>
-          {session.isLoading ? 'Logging in...' : 'Login'}
+          {isLoading ? 'Logging in...' : 'Login'}
         </Text>
       </TouchableOpacity>
 
