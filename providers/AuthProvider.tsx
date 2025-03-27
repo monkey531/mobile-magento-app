@@ -1,15 +1,15 @@
 import { useContext, createContext, type PropsWithChildren, useState } from 'react';
 import { useStorageState } from '@/hooks/useStorage';
-import { api } from '@/constant/api';
+import { api, SERVER, ADMIN } from '@/constant/api';
 
 const AuthContext = createContext<{
-  signIn: (email: string, password: string) => void;
+  signIn: (username: string, password: string) => void;
   signOut: () => void;
   auth: any | null;
   session?: string | null;
   isLoading: boolean;
 }>({
-  signIn: (email: string, password: string) => null,
+  signIn: (username: string, password: string) => null,
   signOut: () => null,
   auth: null,
   session: null,
@@ -28,31 +28,88 @@ export function useSession() {
   return value;
 }
 
+const getFormKey = async (): Promise<{ adminKey: string, formKey: string; cookies: string }> => {
+  try {
+    const url = SERVER + '/WholeAdmin/admin/';
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'text/html,application/xhtml+xml,application/xml',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch Magento login page: ${response.status}`);
+    }
+
+    const text = await response.text();
+
+    // Extract Admin Key (Security Token)
+    const adminKeyMatch = text.match(/var BASE_URL = '([^']+\/key\/([^/]+)\/)';/);
+    const adminKey = adminKeyMatch ? adminKeyMatch[2] : '';
+    console.log(adminKey);
+
+    // Extract form_key using RegExp
+    const formKeyMatch = text.match(/<input name="form_key" type="hidden" value="(.*?)"/);
+    const formKey = formKeyMatch ? formKeyMatch[1] : '';
+
+    if (!formKey) {
+      throw new Error('Form key not found');
+    }
+
+    // Extract cookies from response headers
+    const cookies = response.headers.get('set-cookie') || '';
+
+    if (!formKey) {
+      throw new Error('Cookie key not found');
+    }
+    console.log(adminKey, formKey, cookies);
+    return { adminKey, formKey, cookies  };
+  } catch (error) {
+    return { adminKey:'', formKey: '', cookies: '' };
+  }
+};
+
 export function SessionProvider({ children }: PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState('session');
   const [auth, setAuth] = useState<any>(null);
   return (
     <AuthContext.Provider
       value={{
-        signIn: async (email: string, password: string) => {
+        signIn: async (username: string, password: string) => {
           // Perform sign-in logic here
           try {
-            const response = await fetch(api.login, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer YOUR_TOKEN' // Optional
-              },
-              body: JSON.stringify({ email: email, password: password })
+            const {adminKey, formKey, cookies} = await getFormKey();
+            console.log(adminKey, formKey, cookies);
+            
+            if(!adminKey || !formKey || !cookies) return;
+
+
+            const headers = {
+              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+              "User-Agent": "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Mobile Safari/537.36",
+              "Cookie": "admin=0035mrb6pjocohfpg63cpi3qg4; other_cookie=value;",
+              "Referer": `${SERVER}${ADMIN}`,
+            };
+            const response = await fetch(api.admin.dashboard + adminKey, {
+              method: 'GET',
+              headers: headers
             });
 
-            const data = await response.json();
-            console.log(data);
-            setSession(data.token);
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
 
-//            setSession(data.email);
+            const text = await response.text();
+            //console.log('Response:', text);
+
+            //            setSession(data.token);
+
+            //            setSession(data.username);
           } catch (err) {
-
+            setSession(null);
+            console.error('Error:', err);
           }
         },
         signOut: () => {

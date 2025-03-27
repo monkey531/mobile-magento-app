@@ -1,29 +1,29 @@
 import { useEffect, useState } from 'react';
-import { Link, Stack, router } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useSession } from '@/providers/AuthProvider';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { signIn, session, isLoading } = useSession();
 
   const login = () => {
-    if(email && password) {
-      const res = signIn(email, password);
+    if(username && password) {
+      const res = signIn(username, password);
     } else {
-      setError('Please enter email and password');
+      setError('Please enter username and password');
     }
   }
 
-  useEffect(() => {
-    if(session) {
-      return router.navigate("/(admin)");
-    }
-  }, [session]);
+  // useEffect(() => {
+  //   if(session) {
+  // //    return router.navigate("/(admin)");
+  //   }
+  // }, [session]);
 
   return (
     <View style={styles.container}>
@@ -42,7 +42,7 @@ export default function LoginScreen() {
 
       <Text style={styles.title}>Log into your account</Text>
 
-      {/* Email Input */}
+      {/* User Name Input */}
       <View style={styles.inputContainer}>
         <FontAwesome
           name="envelope"
@@ -52,10 +52,9 @@ export default function LoginScreen() {
         />
         <TextInput
           style={[styles.input, styles.inputWithIcon]}
-          placeholder="email@domain.com"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
+          placeholder="User Name"
+          value={username}
+          onChangeText={setUsername}
           autoCapitalize="none"
           autoFocus={true}
         />
