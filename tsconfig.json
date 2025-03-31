@@ -13,5 +13,9 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+<<<<<<< HEAD
   ]
+=======
+, "app/(auth)/login.tsx", "app/(auth)/login"  ]
+>>>>>>> 70070cd6cf05a5dcd2f286552c2d035c365e8cc4
 }

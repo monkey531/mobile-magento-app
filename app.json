@@ -1,7 +1,12 @@
 {
   "expo": {
+<<<<<<< HEAD
     "name": "admin-app",
     "slug": "admin-app",
+=======
+    "name": "sun-exotic",
+    "slug": "sun-exotic",
+>>>>>>> 70070cd6cf05a5dcd2f286552c2d035c365e8cc4
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

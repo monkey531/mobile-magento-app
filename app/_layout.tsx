@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Stack } from 'expo-router';
 import AuthProvider from './context/AuthContext';
 import { useEffect } from 'react';
@@ -45,4 +46,16 @@ export default function RootLayout() {
       <RootLayoutNav />
     </AuthProvider>
   );
+=======
+import { useContext } from 'react'
+import { Slot } from "expo-router";
+import { SessionProvider } from "@/providers/AuthProvider";
+
+export default function RootLayout() {
+  return (
+    <SessionProvider>
+      <Slot />
+    </SessionProvider>
+  )
+>>>>>>> 70070cd6cf05a5dcd2f286552c2d035c365e8cc4
 }
